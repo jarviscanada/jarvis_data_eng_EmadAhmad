@@ -21,3 +21,48 @@ bash scripts/host_usage.sh psql_host psql_port db_name psql_user psql_password
 crontab -e
 # Add the following line
 * * * * * bash /path/to/host_usage.sh psql_host psql_port db_name psql_user psql_password &> /tmp/host_usage.log
+```
+# Implementation
+
+## Scripts
+psql_docker.sh
+This script manages a PostgreSQL instance using Docker.
+
+```bash
+# Start PostgreSQL container
+./scripts/psql_docker.sh start
+
+# Stop PostgreSQL container
+./scripts/psql_docker.sh stop
+
+# Create PostgreSQL container
+./scripts/psql_docker.sh create db_username db_password
+```
+
+host_info.sh
+Captures hardware specifications and inserts them into the host_info table.
+
+```bash
+# Usage
+./scripts/host_info.sh psql_host psql_port db_name psql_user psql_password
+```
+
+host_usage.sh
+Collects real-time hardware usage data and inserts it into the host_usage table.
+
+```bash
+# Usage
+./scripts/host_usage.sh psql_host psql_port db_name psql_user psql_password
+```
+
+crontab
+Automates the execution of host_usage.sh at regular intervals.
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add the following line to run host_usage.sh every minute
+* * * * * bash /path/to/host_usage.sh psql_host psql_port db_name psql_user psql_password &> /tmp/host_usage.log
+
+```
