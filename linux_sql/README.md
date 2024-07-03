@@ -66,3 +66,60 @@ crontab -e
 * * * * * bash /path/to/host_usage.sh psql_host psql_port db_name psql_user psql_password &> /tmp/host_usage.log
 
 ```
+
+# queries.sql
+
+The `queries.sql` file includes SQL queries to address various business questions related to the Linux Cluster Monitoring Agent project, analyzing hardware and usage data stored in the PostgreSQL database.
+
+## SQL Queries in queries.sql
+
+- **Group Hosts by Hardware Info:** Groups hosts by CPU count and sorts them by memory size within each group.
+- **Average Memory Usage:** Calculates the average memory usage percentage over 5-minute intervals for each host.
+- **Detect Host Failures:** Identifies host failures by detecting hosts that log fewer than three data points within a 5-minute interval.
+
+```bash
+# To run the queries
+psql -h psql_host -p psql_port -d db_name -U psql_user -f queries.sql
+```
+
+# Database Modeling
+
+## host_info Table Schema
+
+| Column            | Data Type | Constraints      | Description              |
+|-------------------|-----------|------------------|--------------------------|
+| id                | SERIAL    | PRIMARY KEY      | Auto-incrementing ID     |
+| hostname          | VARCHAR   | NOT NULL, UNIQUE | Fully qualified hostname |
+| cpu_number        | INT2      | NOT NULL         | Number of CPUs           |
+| cpu_architecture  | VARCHAR   | NOT NULL         | CPU architecture         |
+| cpu_model         | VARCHAR   | NOT NULL         | CPU model                |
+| cpu_mhz           | FLOAT8    | NOT NULL         | CPU frequency in MHz     |
+| l2_cache          | INT4      | NOT NULL         | L2 cache size in kB      |
+| total_mem         | INT4      | NOT NULL         | Total memory in kB       |
+| timestamp         | TIMESTAMP | NOT NULL         | Record timestamp         |
+
+## host_usage Table Schema
+
+| Column          | Data Type | Constraints                | Description               |
+|-----------------|-----------|----------------------------|---------------------------|
+| timestamp       | TIMESTAMP | NOT NULL                   | Record timestamp          |
+| host_id         | SERIAL    | PRIMARY KEY, FOREIGN KEY   | Reference to host_info    |
+| memory_free     | INT4      | NOT NULL                   | Free memory in MB         |
+| cpu_idle        | INT2      | NOT NULL                   | CPU idle percentage       |
+| cpu_kernel      | INT2      | NOT NULL                   | CPU kernel time percentage|
+| disk_io         | INT4      | NOT NULL                   | Disk I/O operations count |
+| disk_available  | INT4      | NOT NULL                   | Available disk space in MB|
+
+# Test
+
+Testing involved executing each Bash script and verifying data insertion into the PostgreSQL database. The scripts executed successfully, and the database tables were populated accurately.
+
+# Deployment
+
+The project was deployed using GitHub for version control, Docker for managing the PostgreSQL container, and crontab for automating periodic data collection tasks.
+
+# Improvements
+
+- Improve error handling and logging in scripts.
+- Implement data validation checks before inserting data into the database.
+- Establish data retention policies to manage database size over time.
